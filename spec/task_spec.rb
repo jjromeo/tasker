@@ -36,4 +36,10 @@ describe Task do
     expect(task2.priority).to eq "NOW"
   end
 
+  it 'can edit an attribute' do 
+    task2 = Task.new(action:"tidy my room")
+    task2.change_action "Jump up and down"
+    expect(task2.action).to eq "Jump up and down"
+  end
+
 end
