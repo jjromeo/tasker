@@ -23,7 +23,7 @@ describe Task do
 
   it 'can be initialized with a recurring status' do 
     task2 = Task.new(recurring: true)
-    expect(task2.recurring?).to eq true
+    expect(task2.recurring).to eq true
   end
   
   it 'can be initialized with a due date' do 

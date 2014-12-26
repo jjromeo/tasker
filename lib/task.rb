@@ -16,23 +16,12 @@ class Task
     @completed = true
   end
 
-  def action
-    attributes[:action]
-  end
-
-  def time_required
-    attributes[:time_required]
-  end
-
-  def recurring?
-    attributes[:recurring]
-  end
-
-  def due_date
-    attributes[:due_date]
-  end
-
-  def priority 
-    attributes[:priority]
+  def method_missing(method)
+    attribute = attributes[method.to_sym]
+    if attribute
+      attribute
+    else
+      super
+    end
   end
 end
