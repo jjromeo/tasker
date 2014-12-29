@@ -21,6 +21,11 @@ describe Task do
     expect(task2.time_required).to eq 20
   end
 
+  it 'can be initialized with a type' do 
+    task2 = Task.new(type:"continuous")
+    expect(task2.type).to eq "continuous"
+  end
+
   it 'can be initialized with a recurring status' do 
     task2 = Task.new(recurring: true)
     expect(task2.recurring).to eq true
