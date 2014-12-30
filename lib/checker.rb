@@ -9,9 +9,23 @@ class Checker
   def current_time
     @time.strftime("%-l:%M %p").downcase
   end
+
+  def set_work_time(start_time, end_time)
+    @work_start_time = Time.parse(start_time)
+    @work_end_time = Time.parse(end_time)
+  end
   
   def current_date
     @time.strftime("%d/%m/%Y")
+  end
+
+  def current_location
+      if @work_start_time && @work_end_time
+        return "work" if @time.between?(@work_start_time, @work_end_time)
+        return "home"
+      else
+        "unknown"
+      end
   end
 
   def what_now
@@ -24,7 +38,7 @@ class Checker
     tasks_for_now = []
        selected_tasks = @list.todo.select do |task|
         if task.due_time == "N/A"
-          true
+            task.location == current_location
         else
           due_time = Time.parse(task.due_time)
           @time.between?(due_time, (due_time + task.time_required * 60))

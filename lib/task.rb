@@ -16,6 +16,11 @@ class Task
     @completed = true
   end
 
+  # method_missing allows access to all attributes in @attributes by calling
+  # task.<attribute>
+  # and 
+  # allows changing the value of attributes by calling task.change_<attribute>
+  
   def method_missing(method, change_value = nil)
     method_string = method.to_s
     attribute = attributes[method.to_sym]
