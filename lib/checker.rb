@@ -31,38 +31,50 @@ class Checker
   end
 
   def what_now
-    todo_now = order_tasks(potential_tasks).first.action unless potential_tasks.empty?
-    return todo_now if todo_now
+    return todo_now = order_tasks(potential_tasks).first.action unless potential_tasks.empty?
     fail 'No task currently set'
   end
 
-  def potential_tasks
-    tasks_for_now = []
-    @list.todo.each do |task|
-      if task.type == 'continuous'
-        if current_location == 'unknown'
-          tasks_for_now << task
-        else
-          tasks_for_now << task if task.location == current_location
-        end
-      else
-        due_time = Time.parse(task.due_time)
-        tasks_for_now << task if @time.between?(due_time, (due_time + task.time_required * 60))
-      end
-    end
-    tasks_for_now
-  end
+  private 
 
   def order_tasks(task_array)
-    set_tasks = task_array.select { |task| task.type == 'set-time' }
-    if set_tasks.empty?
-      return order_by_priority(task_array)
-    else
-      return order_by_priority(set_tasks)
+    if task_array.any? { |task| task.type == 'set-time' }
+      task_array.reject! { |task| task.type == 'continuous' }
     end
+      order_by_priority(task_array)
   end
 
   def order_by_priority(task_array)
     task_array.sort { |first_task, second_task| second_task.priority <=> first_task.priority }
   end
+
+  def potential_tasks
+    @tasks_for_now = []
+    insert_continuous_tasks
+    insert_set_time_tasks
+    @tasks_for_now
+  end
+
+  def insert_continuous_tasks
+    continuous_tasks.each do |task|
+      next if current_location != 'unknown' && current_location != task.location
+      @tasks_for_now << task 
+    end
+  end
+
+  def continuous_tasks
+    @list.todo.select { |task| task.type == 'continuous' }
+  end
+  
+  def insert_set_time_tasks
+    set_time_tasks.each do |task|
+       due_time = Time.parse(task.due_time)
+       @tasks_for_now << task if @time.between?(due_time, (due_time + task.time_required * 60))
+    end
+  end
+
+  def set_time_tasks
+    @list.todo.select { |task| task.type == 'set-time' }
+  end
+
 end
