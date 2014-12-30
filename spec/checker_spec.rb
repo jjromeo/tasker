@@ -1,6 +1,6 @@
 describe Checker do 
   let(:task) {double "task", action: "Study angularjs", due_date: "none", due_time: "N/A", time_required: "N/A", type: "continuous", location: "home", priority: 3 }
-  let(:task2) {double "task", action: "Go to the gym", due_date: "28/12/2014", due_time: "6:00 pm", time_required: 60, type:"set-time", priority: 1 }
+  let(:task2) {double "task", action: "Go to the gym", due_date: "28/12/2014", due_time: "6:00 pm", time_required: 60, type:"set-time", priority: 1, location: "home" }
   let(:task3) {double "task", action: "Go to the shops", due_date: "28/12/2014", due_time: "6:00 pm", time_required: 60, type:"set-time", priority: 5 }
   let(:list) {double "list", tasks: [task, task2], todo: [task, task2] }
   let(:checker) {Checker.new(list)}
@@ -32,17 +32,19 @@ describe Checker do
       expect(checker.what_now).to eq "Go to the gym"
     end
 
-    it 'Will choose a different task depending on users\' location' do 
-      task4 = double("task", action: "Create some websites", type: "continuous", location:"work", priority: 3, due_date: "N/A")
-      list2 = double("list", todo: [task, task2, task3, task4])
-      checker2 = Checker.new(list2)
-      checker.set_work_time("9:00 am", "7:00 pm")
-      expect(checker.what_now).to eq "Create some websites"
-    end
 
     it 'Will default to a continuous task if no set-task is due now' do
       Timecop.freeze(Time.local(2014, 12, 28, 14, 19, 0))
       expect(checker.what_now).to eq 'Study angularjs' 
+    end
+
+    it 'Will choose a different continuous task depending on users\' location' do 
+      Timecop.freeze(Time.local(2014, 12, 28, 16, 19, 0))
+      task4 = double("task", action: "Create some websites", type: "continuous", location:"work", priority: 3, due_date: "N/A")
+      list2 = double("list", todo: [task, task2, task3, task4])
+      checker2 = Checker.new(list2)
+      checker2.set_work_time("9:00 am", "5:00 pm")
+      expect(checker2.what_now).to eq "Create some websites"
     end
 
     it 'Will tell you to do the task with the highest priority if there is a clash' do 

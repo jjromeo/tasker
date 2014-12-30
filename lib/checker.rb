@@ -1,3 +1,5 @@
+require 'debugger'
+
 class Checker 
   attr_accessor :list, :time
 
@@ -36,15 +38,19 @@ class Checker
 
   def get_tasks
     tasks_for_now = []
-       selected_tasks = @list.todo.select do |task|
-        if task.due_time == "N/A"
-            task.location == current_location
+       @list.todo.each do |task|
+        if task.type == "continuous"
+          if current_location != "unknown"
+            tasks_for_now << task if task.location == current_location
+          else 
+            tasks_for_now << task
+          end
         else
           due_time = Time.parse(task.due_time)
-          @time.between?(due_time, (due_time + task.time_required * 60))
+          tasks_for_now << task if @time.between?(due_time, (due_time + task.time_required * 60))
         end
        end
-       tasks_for_now.concat(selected_tasks)
+     tasks_for_now
   end
 
   def order_tasks(task_array)
